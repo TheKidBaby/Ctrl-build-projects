@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import securityRoutes from './routes/security.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { config } from 'dotenv';
@@ -57,7 +58,7 @@ app.use('/api/vault', vaultRoutes);
 app.use('/api/passwords', passwordRoutes);
 app.use('/api/icons', iconRoutes);
 app.use('/api/sync', syncRoutes);
-
+app.use('/api/security', securityRoutes);
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy',
