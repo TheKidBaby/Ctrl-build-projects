@@ -1,295 +1,136 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  X, Globe, User, Lock, Eye, EyeOff, 
-  Folder, FileText, Wand2, Save
-} from 'lucide-react';
+import { X, Globe, User, Lock, Eye, EyeOff, Folder, FileText, Wand2, Save } from 'lucide-react';
 import { PasswordGenerator } from './PasswordGenerator';
+import { BreachChecker } from './BreachChecker';
 import { calculateStrength } from '../crypto/vault';
 import { useVaultStore } from '../stores/vaultStore';
-import { cn } from '../lib/utils';
-import { BreachChecker } from './BreachChecker';
 
 export function PasswordForm({ isOpen, onClose, editingPassword = null }) {
   const { categories, addPassword, updatePassword } = useVaultStore();
-  
-  const [formData, setFormData] = useState({
-    website: '',
-    username: '',
-    password: '',
-    categoryId: '',
-    notes: ''
-  });
-  
-  const [showPassword, setShowPassword] = useState(false);
-  const [showGenerator, setShowGenerator] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({ website: '', username: '', password: '', categoryId: '', notes: '' });
+  const [showPw, setShowPw] = useState(false);
+  const [showGen, setShowGen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-
-  const strength = calculateStrength(formData.password);
+  const strength = calculateStrength(form.password);
 
   useEffect(() => {
     if (editingPassword) {
-      setFormData({
-        website: editingPassword.website || '',
-        username: editingPassword.username || '',
-        password: editingPassword.password || '',
-        categoryId: editingPassword.categoryId || '',
-        notes: editingPassword.notes || ''
-      });
+      setForm({ website: editingPassword.website || '', username: editingPassword.username || '', password: editingPassword.password || '', categoryId: editingPassword.categoryId || '', notes: editingPassword.notes || '' });
     } else {
-      setFormData({
-        website: '',
-        username: '',
-        password: '',
-        categoryId: '',
-        notes: ''
-      });
+      setForm({ website: '', username: '', password: '', categoryId: '', notes: '' });
     }
-    setShowGenerator(false);
+    setShowGen(false);
     setError(null);
   }, [editingPassword, isOpen]);
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setError(null);
-    setIsSubmitting(true);
-
+    setSubmitting(true);
     try {
-      let result;
-      if (editingPassword) {
-        result = await updatePassword(editingPassword.id, formData);
-      } else {
-        result = await addPassword(formData);
-      }
-
-      if (result.success) {
-        onClose();
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handlePasswordSelect = (password) => {
-    setFormData(f => ({ ...f, password }));
-    setShowGenerator(false);
+      const result = editingPassword ? await updatePassword(editingPassword.id, form) : await addPassword(form);
+      result.success ? onClose() : setError(result.error);
+    } catch (err) { setError(err.message); }
+    finally { setSubmitting(false); }
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-      />
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-dark-800 rounded-2xl shadow-2xl"
-      >
-        <div className="sticky top-0 flex items-center justify-between p-6 pb-4 border-b border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-800 z-10">
-          <h2 className="text-xl font-semibold text-dark-900 dark:text-white">
-            {editingPassword ? 'Edit Password' : 'Add New Password'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-dark-100 dark:hover:bg-dark-700 transition-colors"
-          >
-            <X className="w-5 h-5 text-dark-500" />
-          </button>
+      <div onClick={onClose} className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in" />
+      <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto bg-surface-0 rounded-xl shadow-2xl border border-border animate-slide-in">
+        {/* Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-4 border-b border-border bg-surface-0">
+          <h2 className="text-base font-semibold">{editingPassword ? 'Edit' : 'New'} password</h2>
+          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-surface-2 text-text-tertiary"><X className="w-4 h-4" /></button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {error && (
-            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 text-sm">
-              {error}
+        <form onSubmit={submit} className="p-5 space-y-4">
+          {error && <p className="text-xs text-red-500 bg-red-50 dark:bg-red-500/10 px-3 py-2 rounded-lg">{error}</p>}
+
+          <Field icon={Globe} label="Website" value={form.website} onChange={v => setForm(f => ({ ...f, website: v }))} placeholder="example.com" required />
+          <Field icon={User} label="Username / Email" value={form.username} onChange={v => setForm(f => ({ ...f, username: v }))} placeholder="john@example.com" />
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-medium text-text-secondary">Password</label>
+              <button type="button" onClick={() => setShowGen(!showGen)} className="text-xxs text-brand-500 hover:text-brand-600 font-medium flex items-center gap-1">
+                <Wand2 className="w-3 h-3" />{showGen ? 'Hide' : 'Generate'}
+              </button>
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+              <input type={showPw ? 'text' : 'password'} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                placeholder="••••••••" className="w-full pl-9 pr-9 py-2 text-sm font-mono rounded-lg border border-border bg-surface-0 focus:outline-none focus:border-brand-500 transition-colors" required />
+              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary">
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            {form.password && (
+              <div className="mt-1.5">
+                <div className="flex justify-between mb-0.5">
+                  <span className="text-xxs text-text-tertiary">Strength</span>
+                  <span className="text-xxs font-medium" style={{ color: strength.color }}>{strength.label}</span>
+                </div>
+                <div className="h-1 rounded-full bg-surface-3 overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${strength.percentage}%`, backgroundColor: strength.color }} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {form.password && <BreachChecker password={form.password} />}
+
+          {showGen && (
+            <div className="p-3 rounded-lg bg-surface-1 border border-border">
+              <PasswordGenerator onSelect={pw => { setForm(f => ({ ...f, password: pw })); setShowGen(false); }} />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-dark-700 dark:text-dark-300 mb-2">
-              Website
-            </label>
+            <label className="text-xs font-medium text-text-secondary mb-1.5 block">Category</label>
             <div className="relative">
-              <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
-              <input
-                type="text"
-                value={formData.website}
-                onChange={(e) => setFormData(f => ({ ...f, website: e.target.value }))}
-                placeholder="example.com"
-                className="input-base pl-11"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-dark-700 dark:text-dark-300 mb-2">
-              Username / Email
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
-              <input
-                type="text"
-                value={formData.username}
-                onChange={(e) => setFormData(f => ({ ...f, username: e.target.value }))}
-                placeholder="john@example.com"
-                className="input-base pl-11"
-              />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-dark-700 dark:text-dark-300">
-                Password
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowGenerator(!showGenerator)}
-                className="flex items-center gap-1 text-xs text-vault-500 hover:text-vault-600 font-medium"
-              >
-                <Wand2 className="w-3.5 h-3.5" />
-                {showGenerator ? 'Hide Generator' : 'Generate'}
-              </button>
-            </div>
-            
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={(e) => setFormData(f => ({ ...f, password: e.target.value }))}
-                placeholder="••••••••••••"
-                className="input-base pl-11 pr-11 font-mono"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-dark-100 dark:hover:bg-dark-700 rounded"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-4 h-4 text-dark-400" />
-                ) : (
-                  <Eye className="w-4 h-4 text-dark-400" />
-                )}
-              </button>
-            </div>
-
-            {formData.password && (
-              <div className="mt-2">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-dark-400">Strength</span>
-                  <span className="text-xs font-medium" style={{ color: strength.color }}>
-                    {strength.label}
-                  </span>
-                </div>
-                <div className="h-1.5 rounded-full overflow-hidden bg-dark-200 dark:bg-dark-700">
-                  <div
-                    className="h-full rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${strength.percentage}%`,
-                      backgroundColor: strength.color 
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {formData.password && (
-              <div className="mt-3">
-                <BreachChecker 
-                  password={formData.password}
-                  onResult={(result) => {
-                    if (result.breached && result.severity === 'critical') {
-                      console.warn('Critical breach detected:', result);
-                    }
-                  }}
-                />
-              </div>
-            )}
-          </div>
-
-          {showGenerator && (
-            <div className="p-4 rounded-xl bg-dark-50 dark:bg-dark-900 border border-dark-200 dark:border-dark-700">
-              <PasswordGenerator onSelect={handlePasswordSelect} />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-dark-700 dark:text-dark-300 mb-2">
-              Category
-            </label>
-            <div className="relative">
-              <Folder className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
-              <select
-                value={formData.categoryId}
-                onChange={(e) => setFormData(f => ({ ...f, categoryId: e.target.value }))}
-                className="input-base pl-11 appearance-none cursor-pointer"
-              >
-                <option value="">Select a category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
+              <Folder className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+              <select value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-border bg-surface-0 focus:outline-none focus:border-brand-500 appearance-none cursor-pointer transition-colors">
+                <option value="">None</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark-700 dark:text-dark-300 mb-2">
-              Notes
-            </label>
+            <label className="text-xs font-medium text-text-secondary mb-1.5 block">Notes</label>
             <div className="relative">
-              <FileText className="absolute left-3 top-3 w-5 h-5 text-dark-400" />
-              <textarea
-                value={formData.notes}
-                onChange={(e) => setFormData(f => ({ ...f, notes: e.target.value }))}
-                placeholder="Additional notes..."
-                rows={3}
-                className="input-base pl-11 resize-none"
-              />
+              <FileText className="absolute left-3 top-2.5 w-4 h-4 text-text-tertiary" />
+              <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                placeholder="Optional notes..." rows={2} className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-border bg-surface-0 focus:outline-none focus:border-brand-500 resize-none transition-colors" />
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 btn btn-secondary py-3"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 btn btn-primary py-3 disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  <Save className="w-5 h-5" />
-                  {editingPassword ? 'Update' : 'Save'}
-                </>
-              )}
+          <div className="flex gap-2 pt-2">
+            <button type="button" onClick={onClose} className="flex-1 py-2 text-sm font-medium rounded-lg bg-surface-2 hover:bg-surface-3 text-text-secondary transition-colors">Cancel</button>
+            <button type="submit" disabled={submitting} className="flex-1 py-2 text-sm font-medium rounded-lg bg-brand-500 hover:bg-brand-600 text-white transition-colors disabled:opacity-50">
+              {submitting ? '...' : <><Save className="w-4 h-4 inline mr-1" />{editingPassword ? 'Update' : 'Save'}</>}
             </button>
           </div>
         </form>
-      </motion.div>
+      </div>
+    </div>
+  );
+}
+
+function Field({ icon: Icon, label, value, onChange, placeholder, required }) {
+  return (
+    <div>
+      <label className="text-xs font-medium text-text-secondary mb-1.5 block">{label}</label>
+      <div className="relative">
+        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+        <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} required={required}
+          className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-border bg-surface-0 focus:outline-none focus:border-brand-500 transition-colors" />
+      </div>
     </div>
   );
 }

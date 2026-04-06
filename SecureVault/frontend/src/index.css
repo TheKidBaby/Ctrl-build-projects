@@ -1,54 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-dark-200 dark:border-dark-700;
+  :root {
+    --surface-0: #ffffff;
+    --surface-1: #f8f9fa;
+    --surface-2: #f1f3f5;
+    --surface-3: #e9ecef;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-tertiary: #9ca3af;
+    --text-inverse: #ffffff;
+    --border: #e5e7eb;
+    --border-hover: #d1d5db;
   }
-  
+
+  .dark {
+    --surface-0: #0a0a0a;
+    --surface-1: #111111;
+    --surface-2: #1a1a1a;
+    --surface-3: #242424;
+    --text-primary: #f1f1f1;
+    --text-secondary: #888888;
+    --text-tertiary: #555555;
+    --text-inverse: #0a0a0a;
+    --border: #222222;
+    --border-hover: #333333;
+  }
+
   body {
-    @apply bg-white dark:bg-dark-900 text-dark-900 dark:text-white antialiased;
+    @apply bg-surface-0 text-text-primary antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    @apply bg-brand-200 dark:bg-brand-800;
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
   }
-
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: transparent;
   }
-
   ::-webkit-scrollbar-thumb {
-    @apply bg-dark-300 dark:bg-dark-700 rounded-full;
+    @apply bg-surface-3 rounded-full;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-dark-400 dark:bg-dark-600;
-  }
-}
-
-@layer components {
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 focus:outline-none;
-  }
-  
-  .btn-primary {
-    @apply bg-vault-500 text-white hover:bg-vault-600 active:scale-95;
-  }
-  
-  .btn-secondary {
-    @apply bg-dark-100 dark:bg-dark-800 text-dark-700 dark:text-white hover:bg-dark-200 dark:hover:bg-dark-700 active:scale-95;
-  }
-  
-  .input-base {
-    @apply w-full px-4 py-3 rounded-xl border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-800 text-dark-900 dark:text-white placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-vault-500/50 focus:border-vault-500 transition-all;
-  }
-  
-  .card {
-    @apply bg-white dark:bg-dark-800 rounded-2xl border border-dark-200 dark:border-dark-700 shadow-sm;
+  input, textarea, select {
+    @apply font-sans;
   }
 }
