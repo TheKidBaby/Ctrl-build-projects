@@ -1,0 +1,211 @@
+# ============================================
+# Ctrl-build-projects .gitignore
+# (Git root in parent, SecureVault is subfolder)
+# ============================================
+
+# ============================================
+# Dependencies
+# ============================================
+**/node_modules/
+**/jspm_packages/
+**/bower_components/
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+**/.pnp.*
+**/.yarn-integrity
+**/.npm/
+**/.eslintcache
+**/.stylelintcache
+
+# ============================================
+# Environment Variables & Secrets
+# ============================================
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+**/.env.*.local
+!**/.env.example
+**/secrets/
+**/*.key
+**/*.pem
+**/*.cert
+**/*.p12
+**/*.pfx
+
+# ============================================
+# Database Files
+# ============================================
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.sqlite
+**/*.sqlite3
+**/securevault.db*
+**/backups/
+**/*.backup
+**/*.dump
+
+# ============================================
+# Logs
+# ============================================
+**/logs/
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/lerna-debug.log*
+**/pnpm-debug.log*
+**/.pm2/
+**/pm2.log
+**/pm2-error.log
+**/combined.log
+**/error.log
+**/out.log
+**/err.log
+
+# ============================================
+# Build Outputs
+# ============================================
+**/dist/
+**/build/
+**/out/
+**/.next/
+**/.nuxt/
+**/.cache/
+**/.vite/
+**/.parcel-cache/
+**/*.tsbuildinfo
+**/.tsbuildinfo
+
+# ============================================
+# Cache & Temporary Files
+# ============================================
+**/cache/
+**/tmp/
+**/temp/
+**/*.tmp
+**/*.temp
+**/.temp/
+**/icons/cache/
+
+# ============================================
+# IDE & Editor Files
+# ============================================
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+*.code-workspace
+.idea/
+*.iml
+*.iws
+*.ipr
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*.swn
+*~
+.*.sw?
+\#*\#
+.\#*
+.dir-locals.el
+
+# ============================================
+# Operating System Files
+# ============================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.stackdump
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# Testing & Coverage
+# ============================================
+**/coverage/
+**/*.lcov
+**/.nyc_output/
+**/.coverage
+**/htmlcov/
+**/.pytest_cache/
+**/.tox/
+**/.hypothesis/
+**/junit.xml
+**/test-results/
+
+# ============================================
+# Browser Extension
+# ============================================
+**/browser-extension/dist/
+**/browser-extension/build/
+**/web-ext-artifacts/
+**/*.crx
+**/*.xpi
+**/*.zip
+
+# ============================================
+# Docker
+# ============================================
+**/.docker/
+
+# ============================================
+# Documentation (Generated)
+# ============================================
+**/docs/_build/
+**/docs/.doctrees/
+**/site/
+**/_site/
+
+# ============================================
+# Miscellaneous
+# ============================================
+**/debug/
+**/*.debug
+**/benchmark/
+**/benchmarks/
+**/*.cpuprofile
+**/*.heapprofile
+**/*.heapsnapshot
+**/.local/
+**/local/
+**/storybook-static/
+**/.webpack/
+**/screenshots/
+**/demos/
+**/examples/passwords.json
+**/uploads/
+**/attachments/
+**/icons/generated/
+**/analytics/
+**/private/
+**/certificates/
+**/user-data/
+**/vault-data/
+**/sessions/
+**/*.session
+**/*.private
